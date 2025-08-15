@@ -157,8 +157,6 @@ func validate_expression(i Instruction) ErrPosition {
 				errPos.Error = fmt.Errorf("missing operand")
 				errPos.Position = t.Position
 				return errPos
-			} else {
-				fmt.Println("number")
 			}
 		
 		case TOK_IDENTIFIER:
@@ -166,22 +164,22 @@ func validate_expression(i Instruction) ErrPosition {
 				errPos.Error = fmt.Errorf("missing operand")
 				errPos.Position = t.Position
 				return errPos
-			} else {
-				fmt.Println("identifier")
 			}
 		
 		case TOK_PLUS:
+			if j == 0 {
+				errPos.Error = fmt.Errorf("no value before '+'")
+				errPos.Position = t.Position
+				return errPos
+			}
+
 			if j == len(i) -1 {
 				errPos.Error = fmt.Errorf("no value after '+'")
 				errPos.Position = t.Position + 2
 				return errPos
-			} else if lastTok.Type == TOK_NUMBER || lastTok.Type == TOK_IDENTIFIER {
-				fmt.Println("plus")
-			} else if j == 0 {
-				errPos.Error = fmt.Errorf("no value before '+'")
-				errPos.Position = t.Position
-				return errPos
-			} else {	
+			}
+
+			if lastTok.Type != TOK_NUMBER || lastTok.Type != TOK_IDENTIFIER {
 				errPos.Error = fmt.Errorf("cannot use '+' for '%s'", lastTok.Text)
 				errPos.Position = lastTok.Position
 				return errPos
@@ -216,8 +214,6 @@ func validate_let(i Instruction, t Token) ErrPosition {
 	}
 
 	// check expression
-	//fmt.Println(i)
-
 	expr := i[2:]
 	errPos = validate_expression(expr)
 

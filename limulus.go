@@ -252,7 +252,7 @@ type ErrPosition struct {
 	Position int
 }
 
-func (p Program) Validate() {
+func (p Program) Validate() bool {
 	for _, i := range p.Instructions {
 		t := i[0]
 		var err ErrPosition
@@ -274,9 +274,10 @@ func (p Program) Validate() {
 			}
 			fmt.Println("^")
 			fmt.Printf("./%s:%d:%d: %s\n", p.Name, err.Position, err.Line, err.Error)
+			return false
 		}
 	}
-
+	return true
 }
 
 func (i Instruction) Print() {
@@ -325,6 +326,88 @@ func getVar(name string) (Variable, bool) {
 
 var variables = make(map[string]Variable)
 
+func (p Program) ParseToAST() {
+	for _, i := range p.Instructions {
+		t := i[0]
+		switch t.Type {
+		case TOK_LET:
+			var assignNode AssignmentNode
+			assignNode.Name = i[1].Text
+			if len(i) == 4 {
+				switch i[3].Type {
+				case TOK_NUMBER:
+					v, _ := strconv.Atoi(i[3].Text)
+					numNode := NumberNode{Value: v }
+					assignNode.Value = numNode
+				case TOK_IDENTIFIER:
+					idNode := IdentifierNode{Name: i[3].Text }
+					assignNode.Value = idNode
+				}
+				fmt.Printf("assignment node -> %v\n", assignNode)
+			} else {
+				exprAst, err := i[3:].ParseExpression()
+				if err != nil {
+					fmt.Printf("error parsing expression: %v\n", err)
+				}
+				fmt.Printf("assignment node -> %v\n", exprAst)
+			}
+		}
+	}
+}
+
+func StrToInt(s string) (int, error) {
+    value, err := strconv.Atoi(s)
+    if err != nil {
+        return 0, fmt.Errorf("cannot convert %q to int: %w", s, err)
+    }
+    return value, nil
+}
+
+
+// IMPORTANT: currently only works for an expression with 3 tokens, for example "1 + 1"
+func (i Instruction) ParseExpression() (BinOpNode, error) {
+	var binOpNode BinOpNode
+
+	fmt.Println(i)
+
+	leftVal, err := StrToInt(i[0].Text)
+	if err != nil {
+		return binOpNode, fmt.Errorf("left value error: %w", err)
+	}
+	binOpNode.Left = NumberNode{Value: leftVal}
+
+	binOpNode.Operator = i[1].Text
+
+	rightVal, err := StrToInt(i[2].Text)
+	if err != nil {
+		return binOpNode, fmt.Errorf("right value error: %w", err)
+	}
+	binOpNode.Right = NumberNode{Value: rightVal}
+
+	return binOpNode, nil
+}
+
+type Node interface{}
+
+type BinOpNode struct {
+	Left     Node
+	Operator string
+	Right    Node
+}
+
+type AssignmentNode struct {
+	Name  string
+	Value Node
+}
+
+type NumberNode struct {
+	Value int
+}
+
+type IdentifierNode struct {
+	Name string
+}
+
 func main() {
 	fileName := flag.String("file", "", "path of the file to compile")
 	flag.Parse()
@@ -354,6 +437,11 @@ func main() {
 		program.Instructions = append(program.Instructions, tokens)
 	}
 
-	program.Validate()
+	valid := program.Validate()
+	if !valid {
+		os.Exit(1)
+	}
 
+	// create AST from valid program
+	program.ParseToAST()
 }

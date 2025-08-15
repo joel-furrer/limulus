@@ -1,5 +1,5 @@
-let y = 12
+let x = 3
 
-let x = y + 20
+let y = x
 
-cout x + 3 + 5
+let y = 12 + 8

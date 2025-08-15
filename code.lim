@@ -1,7 +1,0 @@
-let x = 54
-
-let y = 16
-
-let result = x + y
-
-cout result

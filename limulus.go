@@ -145,22 +145,99 @@ func cout(value int) {
 }
 
 // validation functions
-func validate_let(i Instruction) error {
-	if len(i) < 3 {
-		return fmt.Errorf("not enough arguments to call 'let'")
+func validate_expression(i Instruction) ErrPosition {
+	var errPos ErrPosition
+	errPos.Line = i[0].Line
+	var lastTok Token
+
+	for j, t := range i {
+		switch t.Type {
+		case TOK_NUMBER:
+			if lastTok.Type == TOK_NUMBER || lastTok.Type == TOK_IDENTIFIER {
+				errPos.Error = fmt.Errorf("missing operand")
+				errPos.Position = t.Position
+				return errPos
+			} else {
+				fmt.Println("number")
+			}
+		
+		case TOK_IDENTIFIER:
+			if lastTok.Type == TOK_NUMBER || lastTok.Type == TOK_IDENTIFIER {
+				errPos.Error = fmt.Errorf("missing operand")
+				errPos.Position = t.Position
+				return errPos
+			} else {
+				fmt.Println("identifier")
+			}
+		
+		case TOK_PLUS:
+			if j == len(i) -1 {
+				errPos.Error = fmt.Errorf("no value after '+'")
+				errPos.Position = t.Position + 2
+				return errPos
+			} else if lastTok.Type == TOK_NUMBER || lastTok.Type == TOK_IDENTIFIER {
+				fmt.Println("plus")
+			} else if j == 0 {
+				errPos.Error = fmt.Errorf("no value before '+'")
+				errPos.Position = t.Position
+				return errPos
+			} else {	
+				errPos.Error = fmt.Errorf("cannot use '+' for '%s'", lastTok.Text)
+				errPos.Position = lastTok.Position
+				return errPos
+			}
+		
+		default:
+			errPos.Error = fmt.Errorf("invalid token '%s' in expression", t.Text)
+			errPos.Position = t.Position
+			return errPos
+		}
+		lastTok = t
 	}
-	return nil
+
+	return errPos
+}
+
+func validate_let(i Instruction, t Token) ErrPosition {
+	var errPos ErrPosition
+	errPos.Line = t.Line
+	
+	// check for valid amount of arguments
+	if len(i) < 3 {
+		errPos.Error = fmt.Errorf("not enough arguments to call 'let'")
+		errPos.Position = t.Position + len(t.Text) + 1
+		return errPos
+	}
+
+	if i[1].Type != TOK_ASSIGN {
+		errPos.Error = fmt.Errorf("missing '=' after let statement")
+		errPos.Position = i[1].Position
+		return errPos
+	}
+
+	// check expression
+	//fmt.Println(i)
+
+	expr := i[2:]
+	errPos = validate_expression(expr)
+
+	return errPos
 }
 
 func validate_cout(i Instruction, t Token) ErrPosition {
 	var errPos ErrPosition
+	errPos.Line = t.Line
+	
+	// check for valid amount of arguments
 	if len(i) == 0 {
 		errPos.Error = fmt.Errorf("missing argument for 'cout'")
-		errPos.Line = t.Line
-		errPos.Position = t.Position + len(t.Text)
-	} //else if len(i) > 1 {
-		//return fmt.Errorf("too many arguments to call 'cout'")
-	//}
+		errPos.Position = t.Position + len(t.Text) + 1
+		return errPos
+	} 
+	
+	// check for argument type
+	expr := i
+	errPos = validate_expression(expr)
 
 	return errPos 
 }
@@ -172,35 +249,56 @@ type ErrPosition struct {
 }
 
 func (i Instruction) Validate() {
-	for _, t := range i {
-		var err ErrPosition
-		switch t.Type {
+	t := i[0]
+	var err ErrPosition
+	switch t.Type {
 
-		// Let-operation
-		case TOK_LET:
-			//err = validate_let(i[1:])
-		case TOK_COUT:
-			err = validate_cout(i[1:], i[0])
+	// Let-operation
+	case TOK_LET:
+		err = validate_let(i[1:], i[0])
+	case TOK_COUT:
+		err = validate_cout(i[1:], i[0])
 
+	}
+
+	if err.Error != nil {
+		
+		i.Print()
+		for range err.Position {
+			fmt.Print(" ")
 		}
+		fmt.Println("^")
+		fmt.Printf("error: %s at position %d:%d\n", err.Error, err.Line, err.Position)
+	}
 
-		if err.Error != nil {
-			
-			fmt.Printf("\t ... %s\n", t.Text)
-			fmt.Printf("\t")
-			for range err.Position + 5 {
-				fmt.Print(" ")
-			}
-			fmt.Println("^")
-			fmt.Printf("error: %s at position %d:%d\n", err.Error, err.Position, err.Line)
-		}
-	} 
 }
 
-func (p Program) Run() {
-	for _, inst := range p.Instructions {
+func (i Instruction) Print() {
+	posProg := 0
+	tokIndex := 0
+	lastTok := i[len(i)-1]
+	lastPos := lastTok.Position + len(lastTok.Text)
+	
+	for range lastPos {
+		if posProg == i[tokIndex].Position {
+			fmt.Print(i[tokIndex].Text)
+			posProg += len(i[tokIndex].Text)
+			if tokIndex < len(i) -1 {
+				tokIndex ++
+			}
+		} else {
+			fmt.Print(" ")
+			posProg ++
+		}
+	}
 
-		inst.Validate()
+	fmt.Println()
+} 
+
+func (p Program) Run() {
+	for _, i := range p.Instructions {
+
+		i.Validate()
 	}
 }
 
@@ -209,6 +307,23 @@ type Instruction []Token
 type Program struct {
 	Instructions []Instruction
 }
+
+// variables
+type Variable struct {
+	Type string
+	Data interface{}
+}
+
+func setVar(name string, v Variable) {
+	variables[name] = v
+}
+
+func getVar(name string) ( Variable, bool ) {
+	v, exists := variables[name]
+	return v, exists
+}
+
+var variables = make(map[string]Variable)
 
 func main() {
 	fileName := flag.String("file", "", "path of the file to compile")
@@ -241,11 +356,3 @@ func main() {
 	program.Run()
 
 }
-
-/*
-
-TODO:
--> Show Line, on which the error occured
--> show multiple arrows or the range of invalid arguments
-
-*/

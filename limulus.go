@@ -165,6 +165,12 @@ func validate_expression(i Instruction) ErrPosition {
 				errPos.Position = t.Position
 				return errPos
 			}
+
+			_, exists := getVar(t.Text)
+			if !exists {
+				errPos.Error = fmt.Errorf("undefined: %s", t.Text)
+				errPos.Position = t.Position
+			}
 		
 		case TOK_PLUS:
 			if j == 0 {
@@ -212,6 +218,8 @@ func validate_let(i Instruction, t Token) ErrPosition {
 		errPos.Position = i[1].Position
 		return errPos
 	}
+	
+	setVar(i[0].Text, Variable{ Type: "int"})
 
 	// check expression
 	expr := i[2:]
@@ -244,27 +252,29 @@ type ErrPosition struct {
 	Position int
 }
 
-func (i Instruction) Validate() {
-	t := i[0]
-	var err ErrPosition
-	switch t.Type {
+func (p Program) Validate() {
+	for _, i := range p.Instructions {
+		t := i[0]
+		var err ErrPosition
+		switch t.Type {
 
-	// Let-operation
-	case TOK_LET:
-		err = validate_let(i[1:], i[0])
-	case TOK_COUT:
-		err = validate_cout(i[1:], i[0])
+		// Let-operation
+		case TOK_LET:
+			err = validate_let(i[1:], i[0])
+		case TOK_COUT:
+			err = validate_cout(i[1:], i[0])
 
-	}
-
-	if err.Error != nil {
-		
-		i.Print()
-		for range err.Position {
-			fmt.Print(" ")
 		}
-		fmt.Println("^")
-		fmt.Printf("error: %s at position %d:%d\n", err.Error, err.Line, err.Position)
+
+		if err.Error != nil {
+			
+			i.Print()
+			for range err.Position {
+				fmt.Print(" ")
+			}
+			fmt.Println("^")
+			fmt.Printf("./%s:%d:%d: %s\n", p.Name, err.Position, err.Line, err.Error)
+		}
 	}
 
 }
@@ -291,17 +301,11 @@ func (i Instruction) Print() {
 	fmt.Println()
 } 
 
-func (p Program) Run() {
-	for _, i := range p.Instructions {
-
-		i.Validate()
-	}
-}
-
 type Instruction []Token
 
 type Program struct {
 	Instructions []Instruction
+	Name         string
 }
 
 // variables
@@ -342,6 +346,7 @@ func main() {
 	}
 
 	var program Program
+	program.Name = sourceFile.FileName
 
 	lines := sourceFile.Lines()
 	for _, l := range lines {
@@ -349,6 +354,6 @@ func main() {
 		program.Instructions = append(program.Instructions, tokens)
 	}
 
-	program.Run()
+	program.Validate()
 
 }

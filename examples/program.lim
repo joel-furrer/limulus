@@ -1,7 +1,5 @@
-let x = 5
+let y = 12
 
-let y = x + 10
+let x = y + 20
 
-let x = 11
-
-cout x + y
+cout x + 3 + 5

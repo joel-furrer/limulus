@@ -24,7 +24,7 @@ func (f *SourceFile) Lines() []Line {
 	for scanner.Scan() {
 		if scanner.Text() != "" {
 			lines = append(lines, Line{
-				Text:	scanner.Text(),
+				Text:   scanner.Text(),
 				LineNo: lineNo,
 			})
 		}
@@ -93,7 +93,7 @@ type Token struct {
 }
 
 type Line struct {
-	Text string
+	Text   string
 	LineNo int
 }
 
@@ -158,7 +158,7 @@ func validate_expression(i Instruction) ErrPosition {
 				errPos.Position = t.Position
 				return errPos
 			}
-		
+
 		case TOK_IDENTIFIER:
 			if lastTok.Type == TOK_NUMBER || lastTok.Type == TOK_IDENTIFIER {
 				errPos.Error = fmt.Errorf("missing operand")
@@ -171,7 +171,7 @@ func validate_expression(i Instruction) ErrPosition {
 				errPos.Error = fmt.Errorf("undefined: %s", t.Text)
 				errPos.Position = t.Position
 			}
-		
+
 		case TOK_PLUS:
 			if j == 0 {
 				errPos.Error = fmt.Errorf("no value before '+'")
@@ -179,7 +179,7 @@ func validate_expression(i Instruction) ErrPosition {
 				return errPos
 			}
 
-			if j == len(i) -1 {
+			if j == len(i)-1 {
 				errPos.Error = fmt.Errorf("no value after '+'")
 				errPos.Position = t.Position + 2
 				return errPos
@@ -190,7 +190,7 @@ func validate_expression(i Instruction) ErrPosition {
 				errPos.Position = lastTok.Position
 				return errPos
 			}
-		
+
 		default:
 			errPos.Error = fmt.Errorf("invalid token '%s' in expression", t.Text)
 			errPos.Position = t.Position
@@ -205,7 +205,7 @@ func validate_expression(i Instruction) ErrPosition {
 func validate_let(i Instruction, t Token) ErrPosition {
 	var errPos ErrPosition
 	errPos.Line = t.Line
-	
+
 	// check for valid amount of arguments
 	if len(i) < 3 {
 		errPos.Error = fmt.Errorf("not enough arguments to call 'let'")
@@ -218,8 +218,8 @@ func validate_let(i Instruction, t Token) ErrPosition {
 		errPos.Position = i[1].Position
 		return errPos
 	}
-	
-	setVar(i[0].Text, Variable{ Type: "int"})
+
+	setVar(i[0].Text, Variable{Type: "int"})
 
 	// check expression
 	expr := i[2:]
@@ -231,24 +231,24 @@ func validate_let(i Instruction, t Token) ErrPosition {
 func validate_cout(i Instruction, t Token) ErrPosition {
 	var errPos ErrPosition
 	errPos.Line = t.Line
-	
+
 	// check for valid amount of arguments
 	if len(i) == 0 {
 		errPos.Error = fmt.Errorf("missing argument for 'cout'")
 		errPos.Position = t.Position + len(t.Text) + 1
 		return errPos
-	} 
-	
+	}
+
 	// check for argument type
 	expr := i
 	errPos = validate_expression(expr)
 
-	return errPos 
+	return errPos
 }
 
 type ErrPosition struct {
-	Error error
-	Line int
+	Error    error
+	Line     int
 	Position int
 }
 
@@ -267,7 +267,7 @@ func (p Program) Validate() {
 		}
 
 		if err.Error != nil {
-			
+
 			i.Print()
 			for range err.Position {
 				fmt.Print(" ")
@@ -284,22 +284,22 @@ func (i Instruction) Print() {
 	tokIndex := 0
 	lastTok := i[len(i)-1]
 	lastPos := lastTok.Position + len(lastTok.Text)
-	
+
 	for range lastPos {
 		if posProg == i[tokIndex].Position {
 			fmt.Print(i[tokIndex].Text)
 			posProg += len(i[tokIndex].Text)
-			if tokIndex < len(i) -1 {
-				tokIndex ++
+			if tokIndex < len(i)-1 {
+				tokIndex++
 			}
 		} else {
 			fmt.Print(" ")
-			posProg ++
+			posProg++
 		}
 	}
 
 	fmt.Println()
-} 
+}
 
 type Instruction []Token
 
@@ -318,7 +318,7 @@ func setVar(name string, v Variable) {
 	variables[name] = v
 }
 
-func getVar(name string) ( Variable, bool ) {
+func getVar(name string) (Variable, bool) {
 	v, exists := variables[name]
 	return v, exists
 }

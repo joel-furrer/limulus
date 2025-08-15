@@ -1,0 +1,7 @@
+let x = 5
+
+let y = x + 10
+
+let x = 11
+
+cout x + y

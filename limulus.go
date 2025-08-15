@@ -179,7 +179,7 @@ func validate_expression(i Instruction) ErrPosition {
 				return errPos
 			}
 
-			if lastTok.Type != TOK_NUMBER || lastTok.Type != TOK_IDENTIFIER {
+			if lastTok.Type != TOK_NUMBER && lastTok.Type != TOK_IDENTIFIER {
 				errPos.Error = fmt.Errorf("cannot use '+' for '%s'", lastTok.Text)
 				errPos.Position = lastTok.Position
 				return errPos

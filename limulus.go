@@ -307,6 +307,7 @@ type Instruction []Token
 type Program struct {
 	Instructions []Instruction
 	Name         string
+	AST          []Node
 }
 
 // variables
@@ -326,7 +327,7 @@ func getVar(name string) (Variable, bool) {
 
 var variables = make(map[string]Variable)
 
-func (p Program) ParseToAST() {
+func (p *Program) ParseToAST() {
 	for _, i := range p.Instructions {
 		t := i[0]
 		switch t.Type {
@@ -352,6 +353,7 @@ func (p Program) ParseToAST() {
 			}
 
 			assignNode.Print()
+			p.AST = append(p.AST, assignNode)
 		}
 	}
 }
@@ -495,4 +497,9 @@ func main() {
 
 	// create AST from valid program
 	program.ParseToAST()
+
+	for _, node := range program.AST {
+		fmt.Printf("Node: %#v\n", node)
+		fmt.Println()
+	}
 }

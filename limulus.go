@@ -358,6 +358,14 @@ func (p *Program) ParseToAST() {
 	}
 }
 
+func (p *Program ) GenerateIR() {
+
+	for _, node := range p.AST {
+		fmt.Printf("Node: %#v\n", node)
+		fmt.Println()
+	}
+}
+
 func (a AssignmentNode) Print() {
     fmt.Println("Assignment")
     fmt.Printf("    Identifier: %s\n", a.Name)
@@ -498,8 +506,5 @@ func main() {
 	// create AST from valid program
 	program.ParseToAST()
 
-	for _, node := range program.AST {
-		fmt.Printf("Node: %#v\n", node)
-		fmt.Println()
-	}
+	program.GenerateIR()
 }

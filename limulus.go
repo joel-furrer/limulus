@@ -343,16 +343,39 @@ func (p Program) ParseToAST() {
 					idNode := IdentifierNode{Name: i[3].Text }
 					assignNode.Value = idNode
 				}
-				fmt.Printf("assignment node -> %v\n", assignNode)
 			} else {
 				exprAst, err := i[3:].ParseExpression()
 				if err != nil {
 					fmt.Printf("error parsing expression: %v\n", err)
 				}
-				fmt.Printf("assignment node -> %v\n", exprAst)
+				assignNode.Value = exprAst
 			}
+
+			assignNode.Print()
 		}
 	}
+}
+
+func (a AssignmentNode) Print() {
+    fmt.Println("Assignment")
+    fmt.Printf("    Identifier: %s\n", a.Name)
+	printNode(a.Value, "    ")
+	fmt.Println()
+}
+
+func printNode(n Node, indent string) {
+    switch v := n.(type) {
+    case NumberNode:
+        fmt.Printf("%sLiteral: %d\n", indent, v.Value)
+    case IdentifierNode:
+        fmt.Printf("%sIdentifier: %s\n", indent, v.Name)
+    case BinOpNode:
+        fmt.Printf("%sBinaryOp (%s)\n", indent, v.Operator)
+        printNode(v.Left, indent+"    ")
+        printNode(v.Right, indent+"    ")
+    default:
+        fmt.Printf("%sUnknown node\n", indent)
+    }
 }
 
 func StrToInt(s string) (int, error) {
@@ -363,28 +386,56 @@ func StrToInt(s string) (int, error) {
     return value, nil
 }
 
+func (i Instruction) ParseExpression() (Node, error) {
+    if len(i) < 3 {
+        return nil, fmt.Errorf("expression too short")
+    }
 
-// IMPORTANT: currently only works for an expression with 3 tokens, for example "1 + 1"
-func (i Instruction) ParseExpression() (BinOpNode, error) {
-	var binOpNode BinOpNode
+    var left Node
+    first := i[0]
+    switch first.Type {
+    case TOK_NUMBER:
+        v, _ := strconv.Atoi(first.Text)
+        left = NumberNode{Value: v}
+    case TOK_IDENTIFIER:
+        left = IdentifierNode{Name: first.Text}
+    default:
+        return nil, fmt.Errorf("unexpected token %v", first)
+    }
 
-	fmt.Println(i)
+    pos := 1
+    for pos < len(i) {
+        opTok := i[pos]
+        if opTok.Type != TOK_PLUS {
+            break
+        }
+        pos++
 
-	leftVal, err := StrToInt(i[0].Text)
-	if err != nil {
-		return binOpNode, fmt.Errorf("left value error: %w", err)
-	}
-	binOpNode.Left = NumberNode{Value: leftVal}
+        if pos >= len(i) {
+            return nil, fmt.Errorf("expected right operand after operator")
+        }
+        rightTok := i[pos]
+        var right Node
+        switch rightTok.Type {
+        case TOK_NUMBER:
+            v, _ := strconv.Atoi(rightTok.Text)
+            right = NumberNode{Value: v}
+        case TOK_IDENTIFIER:
+            right = IdentifierNode{Name: rightTok.Text}
+        default:
+            return nil, fmt.Errorf("unexpected token %v", rightTok)
+        }
 
-	binOpNode.Operator = i[1].Text
+        left = BinOpNode{
+            Left:     left,
+            Operator: opTok.Text,
+            Right:    right,
+        }
 
-	rightVal, err := StrToInt(i[2].Text)
-	if err != nil {
-		return binOpNode, fmt.Errorf("right value error: %w", err)
-	}
-	binOpNode.Right = NumberNode{Value: rightVal}
+        pos++
+    }
 
-	return binOpNode, nil
+    return left, nil
 }
 
 type Node interface{}

@@ -338,10 +338,10 @@ func (p *Program) ParseToAST() {
 				switch i[3].Type {
 				case TOK_NUMBER:
 					v, _ := strconv.Atoi(i[3].Text)
-					numNode := NumberNode{Value: v }
+					numNode := NumberNode{Value: v}
 					assignNode.Value = numNode
 				case TOK_IDENTIFIER:
-					idNode := IdentifierNode{Name: i[3].Text }
+					idNode := IdentifierNode{Name: i[3].Text}
 					assignNode.Value = idNode
 				}
 			} else {
@@ -358,7 +358,7 @@ func (p *Program) ParseToAST() {
 	}
 }
 
-func (p *Program ) GenerateIR() {
+func (p *Program) GenerateIR() {
 
 	for _, node := range p.AST {
 		fmt.Printf("Node: %#v\n", node)
@@ -367,85 +367,85 @@ func (p *Program ) GenerateIR() {
 }
 
 func (a AssignmentNode) Print() {
-    fmt.Println("Assignment")
-    fmt.Printf("    Identifier: %s\n", a.Name)
+	fmt.Println("Assignment")
+	fmt.Printf("    Identifier: %s\n", a.Name)
 	printNode(a.Value, "    ")
 	fmt.Println()
 }
 
 func printNode(n Node, indent string) {
-    switch v := n.(type) {
-    case NumberNode:
-        fmt.Printf("%sLiteral: %d\n", indent, v.Value)
-    case IdentifierNode:
-        fmt.Printf("%sIdentifier: %s\n", indent, v.Name)
-    case BinOpNode:
-        fmt.Printf("%sBinaryOp (%s)\n", indent, v.Operator)
-        printNode(v.Left, indent+"    ")
-        printNode(v.Right, indent+"    ")
-    default:
-        fmt.Printf("%sUnknown node\n", indent)
-    }
+	switch v := n.(type) {
+	case NumberNode:
+		fmt.Printf("%sLiteral: %d\n", indent, v.Value)
+	case IdentifierNode:
+		fmt.Printf("%sIdentifier: %s\n", indent, v.Name)
+	case BinOpNode:
+		fmt.Printf("%sBinaryOp (%s)\n", indent, v.Operator)
+		printNode(v.Left, indent+"    ")
+		printNode(v.Right, indent+"    ")
+	default:
+		fmt.Printf("%sUnknown node\n", indent)
+	}
 }
 
 func StrToInt(s string) (int, error) {
-    value, err := strconv.Atoi(s)
-    if err != nil {
-        return 0, fmt.Errorf("cannot convert %q to int: %w", s, err)
-    }
-    return value, nil
+	value, err := strconv.Atoi(s)
+	if err != nil {
+		return 0, fmt.Errorf("cannot convert %q to int: %w", s, err)
+	}
+	return value, nil
 }
 
 func (i Instruction) ParseExpression() (Node, error) {
-    if len(i) < 3 {
-        return nil, fmt.Errorf("expression too short")
-    }
+	if len(i) < 3 {
+		return nil, fmt.Errorf("expression too short")
+	}
 
-    var left Node
-    first := i[0]
-    switch first.Type {
-    case TOK_NUMBER:
-        v, _ := strconv.Atoi(first.Text)
-        left = NumberNode{Value: v}
-    case TOK_IDENTIFIER:
-        left = IdentifierNode{Name: first.Text}
-    default:
-        return nil, fmt.Errorf("unexpected token %v", first)
-    }
+	var left Node
+	first := i[0]
+	switch first.Type {
+	case TOK_NUMBER:
+		v, _ := strconv.Atoi(first.Text)
+		left = NumberNode{Value: v}
+	case TOK_IDENTIFIER:
+		left = IdentifierNode{Name: first.Text}
+	default:
+		return nil, fmt.Errorf("unexpected token %v", first)
+	}
 
-    pos := 1
-    for pos < len(i) {
-        opTok := i[pos]
-        if opTok.Type != TOK_PLUS {
-            break
-        }
-        pos++
+	pos := 1
+	for pos < len(i) {
+		opTok := i[pos]
+		if opTok.Type != TOK_PLUS {
+			break
+		}
+		pos++
 
-        if pos >= len(i) {
-            return nil, fmt.Errorf("expected right operand after operator")
-        }
-        rightTok := i[pos]
-        var right Node
-        switch rightTok.Type {
-        case TOK_NUMBER:
-            v, _ := strconv.Atoi(rightTok.Text)
-            right = NumberNode{Value: v}
-        case TOK_IDENTIFIER:
-            right = IdentifierNode{Name: rightTok.Text}
-        default:
-            return nil, fmt.Errorf("unexpected token %v", rightTok)
-        }
+		if pos >= len(i) {
+			return nil, fmt.Errorf("expected right operand after operator")
+		}
+		rightTok := i[pos]
+		var right Node
+		switch rightTok.Type {
+		case TOK_NUMBER:
+			v, _ := strconv.Atoi(rightTok.Text)
+			right = NumberNode{Value: v}
+		case TOK_IDENTIFIER:
+			right = IdentifierNode{Name: rightTok.Text}
+		default:
+			return nil, fmt.Errorf("unexpected token %v", rightTok)
+		}
 
-        left = BinOpNode{
-            Left:     left,
-            Operator: opTok.Text,
-            Right:    right,
-        }
+		left = BinOpNode{
+			Left:     left,
+			Operator: opTok.Text,
+			Right:    right,
+		}
 
-        pos++
-    }
+		pos++
+	}
 
-    return left, nil
+	return left, nil
 }
 
 type Node interface{}

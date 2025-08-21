@@ -140,10 +140,6 @@ func (l Line) Tokens() []Token {
 	return tokens
 }
 
-func cout(value int) {
-	fmt.Println(value)
-}
-
 // validation functions
 func validate_expression(i Instruction) ErrPosition {
 	var errPos ErrPosition
@@ -478,6 +474,7 @@ func main() {
 		os.Exit(1)
 	}
 
+	// reading file
 	data, err := os.ReadFile(*fileName)
 	if err != nil {
 		fmt.Println("error opening file:", err)
@@ -492,12 +489,16 @@ func main() {
 	var program Program
 	program.Name = sourceFile.FileName
 
+	// split program into lines
 	lines := sourceFile.Lines()
+
+	// lex lines into tokens -> instruction array
 	for _, l := range lines {
 		tokens := l.Tokens()
 		program.Instructions = append(program.Instructions, tokens)
 	}
 
+	// validate instructions for currect usage of grammar
 	valid := program.Validate()
 	if !valid {
 		os.Exit(1)
@@ -506,5 +507,6 @@ func main() {
 	// create AST from valid program
 	program.ParseToAST()
 
+	// generate ir from ast
 	program.GenerateIR()
 }

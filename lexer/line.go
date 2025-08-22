@@ -50,6 +50,9 @@ func (l Line) addToken(tokens *[]tok.Token, text string, start int) {
 	var numType tok.NumType
 	if tokType == tok.NUMBER || tokType == tok.UNKNOWN {
 		numType = classifyNumber(text)
+		if numType != tok.NUM_UNKNOWN {
+			tokType = tok.NUMBER
+		}
 	} else {
 		numType = tok.NUM_UNKNOWN
 	}

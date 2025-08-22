@@ -46,6 +46,8 @@ func validateLet(i Instruction) TokErr {
 		return tokErr
 	}
 
+	tokErr = validateExpression(i[3:])
+
 	return tokErr
 }
 
@@ -58,66 +60,11 @@ func validateCout(i Instruction) TokErr {
 		return tokErr
 	}
 
-	//tokErr = validateExpression(i[1:])
-
 	return tokErr
 }
 
-/*
 func validateExpression(i Instruction) TokErr {
 	var tokErr TokErr
-	tokErr.Line = i[0].Line
-	var lastTok tok.Token
-
-	for j, t := range i {
-		switch t.Type {
-		case tok.NUMBER:
-			if lastTok.Type == tok.NUMBER || lastTok.Type == tok.IDENTIFIER {
-				tokErr.Error = fmt.Errorf("missing operand")
-				tokErr.Position = t.Position
-				return tokErr
-			}
-
-		case tok.IDENTIFIER:
-			if lastTok.Type == tok.NUMBER || lastTok.Type == tok.IDENTIFIER {
-				tokErr.Error = fmt.Errorf("missing operand")
-				tokErr.Position = t.Position
-				return tokErr
-			}
-
-			_, exists := getVar(t.Text)
-			if !exists {
-				tokErr.Error = fmt.Errorf("undefined: %s", t.Text)
-				tokErr.Position = t.Position
-			}
-
-		case tok.PLUS:
-			if j == 0 {
-				tokErr.Error = fmt.Errorf("no value before '+'")
-				tokErr.Position = t.Position
-				return tokErr
-			}
-
-			if j == len(i)-1 {
-				tokErr.Error = fmt.Errorf("no value after '+'")
-				tokErr.Position = t.Position + 2
-				return tokErr
-			}
-
-			if lastTok.Type != tok.NUMBER && lastTok.Type != tok.IDENTIFIER {
-				tokErr.Error = fmt.Errorf("cannot use '+' for '%s'", lastTok.Text)
-				tokErr.Position = lastTok.Position
-				return tokErr
-			}
-
-		default:
-			tokErr.Error = fmt.Errorf("invalid token '%s' in expression", t.Text)
-			tokErr.Position = t.Position
-			return tokErr
-		}
-		lastTok = t
-	}
 
 	return tokErr
 }
-*/

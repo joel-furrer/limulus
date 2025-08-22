@@ -32,11 +32,11 @@ func main() {
 	instructions := lexer.Lex(source)
 
 	// parser
-	program, err := parser.Parse(instructions)
+	_, err = parser.Parse(instructions)
 	if err != nil {
 		fmt.Println("parse error:", err)
 		os.Exit(1)
 	}
 
-	fmt.Println(program)
+	//fmt.Println(program)
 }

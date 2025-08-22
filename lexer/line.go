@@ -23,12 +23,7 @@ func (l Line) Tokens() []tok.Token {
 		if unicode.IsSpace(r) {
 			if inToken {
 				text := string(current)
-				tokens = append(tokens, tok.Token{
-					Text:     text,
-					Position: start,
-					Line:     l.LineNo,
-					Type:     classifyToken(text),
-				})
+				l.addToken(&tokens, text, start)
 				current = nil
 				inToken = false
 			}
@@ -43,13 +38,27 @@ func (l Line) Tokens() []tok.Token {
 
 	if inToken {
 		text := string(current)
-		tokens = append(tokens, tok.Token{
-			Text:     text,
-			Position: start,
-			Line:     l.LineNo,
-			Type:     classifyToken(text),
-		})
+		l.addToken(&tokens, text, start)
 	}
 
 	return tokens
+}
+
+func (l Line) addToken(tokens *[]tok.Token, text string, start int) {
+	tokType := classifyToken(text)
+
+	var numType tok.NumType
+	if tokType == tok.NUMBER || tokType == tok.UNKNOWN {
+		numType = classifyNumber(text)
+	} else {
+		numType = tok.NUM_UNKNOWN
+	}
+
+	*tokens = append(*tokens, tok.Token{
+		Text:       text,
+		Position:   start,
+		Line:       l.LineNo,
+		Type:       tokType,
+		NumType:    numType,
+	})
 }

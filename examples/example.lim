@@ -1,5 +1,8 @@
 let unsignedVar = 5u
 
-let x = "hallo"
+let x = hallo
 
 cout 5 + 5
+
+let x = ( 5 + 2 ) * ( 4
+let x = ( 5 + 2 ) * 4 )

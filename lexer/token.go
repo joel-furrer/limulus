@@ -19,14 +19,8 @@ func classifyToken(text string) tok.Type {
 		return tok.ASSIGN
 	
 	// operands
-	case "+":
-		return tok.PLUS
-	case "-":
-		return tok.MIN
-	case "*":
-		return tok.MUL
-	case "/":
-		return tok.DIV
+	case "+", "-", "*", "/":
+		return tok.OP
 
 	// parentheses
 	case "(":
@@ -103,4 +97,19 @@ func classifyNumber(text string) tok.NumType {
 	}
 	
 	return tok.NUM_UNKNOWN
+}
+
+func classifyOperator(text string) tok.BinOpType {
+	switch text {
+	case "+": 
+		return tok.PLUS
+	case "-": 
+		return tok.MIN
+	case "*": 
+		return tok.MUL
+	case "/": 
+		return tok.DIV
+	default:
+		return tok.OP_UNKNOWN
+	}
 }

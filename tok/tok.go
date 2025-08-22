@@ -1,5 +1,6 @@
 package tok
 
+// tokens
 type Type int
 
 const (
@@ -14,16 +15,14 @@ const (
 	
 	ASSIGN
 	DOT
-	
-	PLUS
-	MIN
-	MUL
-	DIV
+
+	OP
 	
 	LPAREN
 	RPAREN
 )
 
+// numbers
 type NumType int
 
 const (
@@ -36,10 +35,22 @@ const (
 	FLOAT64
 )
 
+// binary operators
+type BinOpType int
+
+const (
+	OP_UNKNOWN BinOpType = iota
+	PLUS
+	MIN
+	MUL
+	DIV
+)
+
 type Token struct {
-	Text     string
-	Position int
-	Line     int
-	Type     Type
-	NumType  NumType
+	Text      string
+	Position  int
+	Line      int
+	Type      Type
+	NumType   NumType
+	BinOpType BinOpType
 }

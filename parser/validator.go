@@ -105,10 +105,7 @@ func (e Expression) ValidateTokens() (int, bool) {
 	validTokens := []tok.Type{
 		tok.IDENTIFIER,
 		tok.NUMBER,
-		tok.PLUS,
-		tok.MIN,
-		tok.MUL,
-		tok.DIV,
+		tok.OP,
 		tok.LPAREN,
 		tok.RPAREN,
 	}

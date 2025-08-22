@@ -1,6 +1,11 @@
 package parser
 
-import "limulus/tok"
+import (
+
+	// temp
+	"fmt"
+	"limulus/tok"
+)
 
 type Expression Instruction
 
@@ -19,6 +24,12 @@ func validateExpression(i Instruction) TokErr {
 
 	// check parantheses
 	tokErr := e.ValidateParantheses()
+	if tokErr.Error != nil {
+		return tokErr
+	}
+
+	// check for correct usage of binary operators
+	tokErr = e.ValidateOperators()
 	if tokErr.Error != nil {
 		return tokErr
 	}
@@ -81,3 +92,36 @@ func (e Expression) ValidateParantheses() TokErr {
 
 	return TokErr{}
 }
+
+func (e Expression) ValidateOperators() TokErr {
+
+	var lastTok tok.Token
+	for i, t := range e {
+		if t.Type == tok.OP {
+			fmt.Println("OP")
+			if i == 0 {
+				pos := t.Position
+				return NewTokErr(fmt.Sprintf("cannot use '%s' at the start of an expression", t.Text), pos)
+			}
+
+			if i == len(e) -1 {
+				pos := t.Position
+				return NewTokErr(fmt.Sprintf("cannot use '%s' at the end of an expression", t.Text), pos)
+			}
+			
+			if lastTok.Type == tok.OP {
+				pos := t.Position
+				return NewTokErr("missing identifier for operator", pos)
+			}
+
+		}
+			
+		lastTok = t
+	}
+
+	// split expressions into sub-exressions
+
+	return TokErr{}
+}
+
+

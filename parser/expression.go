@@ -3,7 +3,7 @@ package parser
 import (
 
 	// temp
-	"fmt"
+	//"fmt"
 	"limulus/tok"
 	"limulus/err"
 )
@@ -27,6 +27,11 @@ func validateExpression(i Instruction) err.Err {
 	}
 
 	tokErr = e.ValidateOperators()
+	if tokErr.Error != nil {
+		return tokErr
+	}
+
+	tokErr = e.ValidateSequence()
 	if tokErr.Error != nil {
 		return tokErr
 	}
@@ -70,12 +75,18 @@ func (e Expression) ValidateParantheses() err.Err {
 				pos := t.Position + len(t.Text) -1
 				return ErrInvalidTokenUsage(t, AtEndOfExpression, pos)
 			}
+
+			if lastTok.Type == tok.RPAREN {
+				return ErrExpectedTokenBetween(lastTok.Type, t.Type, tok.OP, lastTok.Position)
+			}
+
 			stack = append(stack, t)
 
 		case tok.RPAREN:
 			if i == 0 {
 				return ErrInvalidTokenUsage(t, AtStartOfExpression, 0)
 			}
+
 			if len(stack) < 1 {
 				return ErrMissingToken(tok.LPAREN, t.Position)
 			}
@@ -104,7 +115,6 @@ func (e Expression) ValidateOperators() err.Err {
 	var lastTok tok.Token
 	for i, t := range e {
 		if t.Type == tok.OP {
-			fmt.Println("OP")
 			if i == 0 {
 				pos := t.Position
 				return ErrInvalidTokenUsage(t, AtStartOfExpression, pos)
@@ -120,12 +130,50 @@ func (e Expression) ValidateOperators() err.Err {
 				return ErrUnexpectedSequence(lastTok, t, pos)
 			}
 
+			if lastTok.Type == tok.LPAREN {
+				pos := t.Position
+				return ErrUnexpectedSequence(lastTok, t, pos)
+			}
+
 		}
 			
 		lastTok = t
 	}
 
-	// split expressions into sub-exressions
+	return err.Err{}
+}
+
+func (e Expression) ValidateSequence() err.Err {
+	var lastTok tok.Token
+
+	for _, t := range e {
+		switch t.Type {
+
+		case tok.NUMBER, tok.IDENTIFIER:
+			if lastTok.Type == tok.NUMBER || lastTok.Type == tok.IDENTIFIER || lastTok.Type == tok.RPAREN {
+				return ErrUnexpectedSequence(lastTok, t, t.Position)
+			}
+
+		case tok.LPAREN:
+			if lastTok.Type == tok.NUMBER || lastTok.Type == tok.IDENTIFIER || lastTok.Type == tok.RPAREN {
+				return ErrUnexpectedSequence(lastTok, t, t.Position)
+			}
+
+		case tok.RPAREN:
+			if lastTok.Type == tok.OP {
+				return ErrUnexpectedSequence(lastTok, t, t.Position)
+			}
+
+		case tok.OP:
+			if lastTok.Type == tok.LPAREN {
+				return ErrUnexpectedSequence(lastTok, t, t.Position)
+			}
+
+		}
+
+		lastTok = t
+	}
 
 	return err.Err{}
 }
+

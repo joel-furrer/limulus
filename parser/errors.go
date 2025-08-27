@@ -43,3 +43,10 @@ func ErrExpectedTokenAfter(t, expected tok.Type, pos int) err.Err {
 	tokenExpected := expected.ToString()
 	return err.New(fmt.Sprintf("expected '%s' after '%s'", token, tokenExpected), pos)
 }
+
+func ErrExpectedTokenBetween(before, after, expected tok.Type, pos int) err.Err {
+	tBefore := before.ToString()
+	tAfter := after.ToString()
+	tExpected := expected.ToString()
+	return err.New(fmt.Sprintf("expected '%s' between '%s' and '%s'", tExpected, tBefore, tAfter), pos)
+}

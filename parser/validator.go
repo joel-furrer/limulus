@@ -3,6 +3,7 @@ package parser
 import (
 	"fmt"
 	"limulus/tok"
+	"limulus/err"
 )
 
 func ( instr Instructions ) Validate() bool {
@@ -12,7 +13,7 @@ func ( instr Instructions ) Validate() bool {
 		if v, ok := statementValidators[firstTok.Type]; ok {
 			err := v(i)
 			if err.Error != nil {
-				err.Print(i)
+				PrintErr(err, i)
 				return false
 			}
 		} else {
@@ -23,24 +24,24 @@ func ( instr Instructions ) Validate() bool {
 	return true
 }
 
-type Validator func(i Instruction) TokErr
+type Validator func(i Instruction) err.Err
 
 var statementValidators = map[tok.Type]Validator{
 	tok.LET:  validateLet,
 	tok.COUT: validateCout,
 }
 
-func validateLet(i Instruction) TokErr {
+func validateLet(i Instruction) err.Err {
 
 	if len(i) < 4 {
 		lastTok := i[len(i) -1]
 		pos := lastTok.Position + len(lastTok.Text) + 1
-		return NewTokErr("not enough arguments to call 'let'", pos)
+		return err.New("not enough arguments to call 'let'", pos)
 	}
 
 	if i[2].Type != tok.ASSIGN {
 		pos := i[2].Position
-		return NewTokErr("missing '=' after let statement", pos)
+		return err.New("missing '=' after let statement", pos)
 	}
 
 	tokErr := validateExpression(i[3:])
@@ -53,14 +54,14 @@ func validateLet(i Instruction) TokErr {
 		return tokErr
 	}
 
-	return TokErr{}
+	return err.Err{}
 }
 
-func validateCout(i Instruction) TokErr {
+func validateCout(i Instruction) err.Err {
 
 	if len(i) < 2 {
 		pos := i[0].Position + len(i[0].Text) + 1
-		return NewTokErr("not enough arguments to call 'cout'", pos)
+		return err.New("not enough arguments to call 'cout'", pos)
 	}
 
 	tokErr := validateExpression(i[1:])
@@ -73,5 +74,5 @@ func validateCout(i Instruction) TokErr {
 		return tokErr
 	}
 
-	return TokErr{}
+	return err.Err{}
 }

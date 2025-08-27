@@ -5,21 +5,22 @@ import (
 	// temp
 	"fmt"
 	"limulus/tok"
+	"limulus/err"
 )
 
 type Expression Instruction
 
-func validateExpression(i Instruction) TokErr {
+func validateExpression(i Instruction) err.Err {
 	var e Expression = Expression(i)
 
 	// cant be nil
 	if e == nil {
-		return NewTokErr("missing expression", 0)
+		return err.New(ErrMissingExpression, 0)
 	}
 
 	// must only contain valid tokens
 	if pos, ok := e.ValidateTokens(); !ok  {
-		return NewTokErr("invalid token", pos)
+		return err.New(ErrInvalidToken, pos)
 	}
 
 	// check parantheses
@@ -34,7 +35,7 @@ func validateExpression(i Instruction) TokErr {
 		return tokErr
 	}
 
-	return TokErr{}
+	return err.Err{}
 }
 
 func (e Expression) ValidateTokens() (int, bool) {
@@ -61,7 +62,7 @@ func (e Expression) ValidateTokens() (int, bool) {
 	return 0, true
 }
 
-func (e Expression) ValidateParantheses() TokErr {
+func (e Expression) ValidateParantheses() err.Err {
 	var stack []tok.Token
 
 	for i, t := range e {
@@ -70,16 +71,16 @@ func (e Expression) ValidateParantheses() TokErr {
 		case tok.LPAREN:
 			if i == len(e) -1 {
 				pos := t.Position + len(t.Text) -1
-				return NewTokErr("cannot use '(' at the end of an expression", pos)
+				return ErrInvalidTokenUsage(t, AtEndOfExpression, pos)
 			}
 			stack = append(stack, t)
 
 		case tok.RPAREN:
 			if i == 0 {
-				return NewTokErr("cannot use ')' at the start of an expression", 0)
+				return ErrInvalidTokenUsage(t, AtStartOfExpression, 0)
 			}
 			if len(stack) < 1 {
-				return NewTokErr("missing '('", t.Position)
+				return ErrMissingToken(tok.LPAREN, t.Position)
 			}
 			stack = stack[:len(stack) -1]
 		}
@@ -87,13 +88,13 @@ func (e Expression) ValidateParantheses() TokErr {
 
 	if len(stack) != 0 {
 		last := stack[len(stack) -1]
-		return NewTokErr("missing ')'", last.Position)
+		return ErrMissingToken(tok.RPAREN, last.Position)
 	}
 
-	return TokErr{}
+	return err.Err{}
 }
 
-func (e Expression) ValidateOperators() TokErr {
+func (e Expression) ValidateOperators() err.Err {
 
 	var lastTok tok.Token
 	for i, t := range e {
@@ -101,17 +102,17 @@ func (e Expression) ValidateOperators() TokErr {
 			fmt.Println("OP")
 			if i == 0 {
 				pos := t.Position
-				return NewTokErr(fmt.Sprintf("cannot use '%s' at the start of an expression", t.Text), pos)
+				return ErrInvalidTokenUsage(t, AtStartOfExpression, pos)
 			}
 
 			if i == len(e) -1 {
 				pos := t.Position
-				return NewTokErr(fmt.Sprintf("cannot use '%s' at the end of an expression", t.Text), pos)
+				return ErrInvalidTokenUsage(t, AtEndOfExpression, pos)
 			}
 			
 			if lastTok.Type == tok.OP {
 				pos := t.Position
-				return NewTokErr("missing identifier for operator", pos)
+				return ErrUnexpectedSequence(lastTok, t, pos)
 			}
 
 		}
@@ -121,7 +122,5 @@ func (e Expression) ValidateOperators() TokErr {
 
 	// split expressions into sub-exressions
 
-	return TokErr{}
+	return err.Err{}
 }
-
-

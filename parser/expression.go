@@ -1,9 +1,6 @@
 package parser
 
 import (
-
-	// temp
-	//"fmt"
 	"limulus/tok"
 	"limulus/err"
 )

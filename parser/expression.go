@@ -13,23 +13,19 @@ type Expression Instruction
 func validateExpression(i Instruction) err.Err {
 	var e Expression = Expression(i)
 
-	// cant be nil
 	if e == nil {
 		return err.New(ErrMissingExpression, 0)
 	}
 
-	// must only contain valid tokens
 	if pos, ok := e.ValidateTokens(); !ok  {
 		return err.New(ErrInvalidToken, pos)
 	}
 
-	// check parantheses
 	tokErr := e.ValidateParantheses()
 	if tokErr.Error != nil {
 		return tokErr
 	}
 
-	// check for correct usage of binary operators
 	tokErr = e.ValidateOperators()
 	if tokErr.Error != nil {
 		return tokErr

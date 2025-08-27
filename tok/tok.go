@@ -3,6 +3,29 @@ package tok
 // tokens
 type Type int
 
+func ( t Type ) ToString() string {
+	switch t {
+	case IDENTIFIER:
+		return "identifier"
+	case NUMBER:
+		return "number"
+	case LET:
+		return "let"
+	case COUT:
+		return "cout"
+	case ASSIGN:
+		return "="
+	case OP:
+		return "operator"
+	case LPAREN:
+		return "("
+	case RPAREN:
+		return ")"
+	default:
+		return "unknown token"
+	}
+}
+
 const (
 	UNKNOWN Type = iota
 	
@@ -37,6 +60,21 @@ const (
 
 // binary operators
 type BinOpType int
+
+/*
+func ( b BinOpType ) ToString() string {
+	switch b {
+	case PLUS:
+		return "+"
+	case MIN:
+		return "-"
+	case MUL:
+		return "*"
+	case DIV:
+		return "/"
+	}
+}
+*/
 
 const (
 	OP_UNKNOWN BinOpType = iota

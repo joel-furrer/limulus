@@ -2,6 +2,7 @@ package parser
 
 import (
 	"fmt"
+
 	"limulus/tok"
 	"limulus/err"
 )
@@ -17,7 +18,7 @@ func ( instr Instructions ) Validate() bool {
 				return false
 			}
 		} else {
-			fmt.Printf("no validator for token: %v\n", firstTok.Text)
+			fmt.Printf("unknown token: %v\n", firstTok.Text)
 			return false
 		}
 	}
@@ -36,12 +37,12 @@ func validateLet(i Instruction) err.Err {
 	if len(i) < 4 {
 		lastTok := i[len(i) -1]
 		pos := lastTok.Position + len(lastTok.Text) + 1
-		return err.New("not enough arguments to call 'let'", pos)
+		return ErrNotEnoughArgs(tok.LET, pos)
 	}
 
 	if i[2].Type != tok.ASSIGN {
 		pos := i[2].Position
-		return err.New("missing '=' after let statement", pos)
+		return ErrExpectedTokenAfter(tok.LET, tok.ASSIGN, pos)
 	}
 
 	tokErr := validateExpression(i[3:])
@@ -61,7 +62,7 @@ func validateCout(i Instruction) err.Err {
 
 	if len(i) < 2 {
 		pos := i[0].Position + len(i[0].Text) + 1
-		return err.New("not enough arguments to call 'cout'", pos)
+		return ErrNotEnoughArgs(tok.COUT, pos)
 	}
 
 	tokErr := validateExpression(i[1:])

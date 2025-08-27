@@ -60,6 +60,7 @@ func (e Expression) ValidateTokens() (int, bool) {
 
 func (e Expression) ValidateParantheses() err.Err {
 	var stack []tok.Token
+	var lastTok tok.Token
 
 	for i, t := range e {
 		switch t.Type{
@@ -78,8 +79,16 @@ func (e Expression) ValidateParantheses() err.Err {
 			if len(stack) < 1 {
 				return ErrMissingToken(tok.LPAREN, t.Position)
 			}
+
+			if lastTok.Type == tok.LPAREN {
+				return err.New(ErrEmptyExpression, lastTok.Position)
+			}
+
 			stack = stack[:len(stack) -1]
 		}
+
+		lastTok = t
+
 	}
 
 	if len(stack) != 0 {

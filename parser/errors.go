@@ -11,6 +11,7 @@ import (
 const (
 	ErrMissingExpression = "missing expression"
 	ErrInvalidToken = "invalid token"
+	ErrEmptyExpression = "empty expression"
 )
 
 // enums for context

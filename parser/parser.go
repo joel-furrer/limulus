@@ -17,16 +17,22 @@ func Parse(instr Instructions, opts Options) (Program, error) {
 	if ok := instr.Validate(); !ok {
 		return prog, fmt.Errorf("validation failed")
 	}
+	
+	table := NewSymbolTable()
+	
+	DumpASTTyped = opts.DumpASTTyped
 
 	for _, i := range instr {
-		node, _ := Instruction(i).Ast()
-
-		analyzeNode(node)
-
-		DumpASTTyped = opts.DumpASTTyped
+		
+		ast, _ := Instruction(i).Ast()
 
 		if opts.DumpAST || opts.DumpASTTyped {
-			printAst(node, "", true)
+			printAst(ast, "", true)
+		}
+
+		_, err := analyzeNode(ast, table)
+		if err != nil {
+			return prog, err
 		}
 	}
 

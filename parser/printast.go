@@ -81,22 +81,3 @@ func getPrefix(isLast bool) string {
 		return Pipe
 	}
 }
-
-/*
-
-print ast function
-
-
-take in a node
-find its type and print
-
-Assignment has 2 children:
-- Name
-- Expression
-
-Cout has 1 child:
-- Expression
-
-
-
-*/

@@ -22,6 +22,8 @@ type Node interface {
 }
 
 // AST Nodes
+
+// ----- Assignment -----
 type AssignmentNode struct {
 	Name  string
 	Value Node
@@ -29,13 +31,28 @@ type AssignmentNode struct {
 
 func (a *AssignmentNode) Kind() NodeKind { return NodeAssignment }
 
+func AsAssignment(n Node) *AssignmentNode {
+	if n.Kind() != NodeAssignment {
+		panic("not an AssignmentNode")
+	}
+	return n.(*AssignmentNode)
+}
+
+// ----- Cout ----- 
 type CoutNode struct {
-	//Name  string
 	Value Node
 }
 
 func (c *CoutNode) Kind() NodeKind { return NodeCout }
 
+func AsCout(n Node) *CoutNode {
+	if n.Kind() != NodeCout {
+		panic("not an CoutNode")
+	}
+	return n.(*CoutNode)
+}
+
+// ----- BinOp -----
 type BinOpNode struct {
 	Left     Node
 	Operator tok.BinOpType
@@ -44,6 +61,14 @@ type BinOpNode struct {
 
 func (b *BinOpNode) Kind() NodeKind { return NodeBinOp }
 
+func AsBinOp(n Node) *BinOpNode {
+	if n.Kind() != NodeBinOp {
+		panic("not an BinOpNode")
+	}
+	return n.(*BinOpNode)
+}
+
+// ----- Number -----
 type NumberNode struct {
 	Value   int
 	NumType tok.NumType
@@ -51,12 +76,28 @@ type NumberNode struct {
 
 func (n *NumberNode) Kind() NodeKind { return NodeNumber }
 
+func AsNumber(n Node) *NumberNode {
+	if n.Kind() != NodeNumber {
+		panic("not an NumberNode")
+	}
+	return n.(*NumberNode)
+}
+
+// ----- Identifier -----
 type IdentifierNode struct {
 	Name string
 }
 
 func (i *IdentifierNode) Kind() NodeKind { return NodeIdentifier }
 
+func AsIdentifier(n Node) *IdentifierNode {
+	if n.Kind() != NodeIdentifier {
+		panic("not an IdentifierNode")
+	}
+	return n.(*IdentifierNode)
+}
+
+// AST
 func (i Instruction) Ast() (Node, error) {
 
 	switch i[0].Type {

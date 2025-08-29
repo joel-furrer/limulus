@@ -26,7 +26,9 @@ func analyzeNode(n Node, table *SymbolTable) (tok.NumType, error) {
 	case NodeAssignment:
 		node := AsAssignment(n)
 		valType, err := analyzeNode(node.Value, table)
-		if err != nil { return tok.NUM_UNKNOWN, err }
+		if err != nil {
+			return tok.NUM_UNKNOWN, err
+		}
 		table.Vars[node.Name] = Symbol{Name: node.Name, Type: valType}
 		return valType, nil
 
@@ -41,10 +43,14 @@ func analyzeNode(n Node, table *SymbolTable) (tok.NumType, error) {
 	case NodeBinOp:
 		node := AsBinOp(n)
 		lType, err := analyzeNode(node.Left, table)
-		if err != nil { return tok.NUM_UNKNOWN, err }
+		if err != nil {
+			return tok.NUM_UNKNOWN, err
+		}
 		rType, err := analyzeNode(node.Right, table)
-		if err != nil { return tok.NUM_UNKNOWN, err }
-		
+		if err != nil {
+			return tok.NUM_UNKNOWN, err
+		}
+
 		lStr := lType.ToString()
 		rStr := rType.ToString()
 
@@ -72,20 +78,20 @@ func analyzeNode(n Node, table *SymbolTable) (tok.NumType, error) {
 }
 
 func valueToString(n Node) string {
-    switch n.Kind() {
-    case NodeNumber:
-        num := AsNumber(n)
-        return fmt.Sprintf("%v", num.Value)
-    case NodeIdentifier:
-        id := AsIdentifier(n)
-        return id.Name
-    case NodeBinOp:
-        bin := AsBinOp(n)
-        return fmt.Sprintf("(%s %v %s)",
-            valueToString(bin.Left),
-            bin.Operator,
-            valueToString(bin.Right))
-    default:
-        return "<?>"
-    }
+	switch n.Kind() {
+	case NodeNumber:
+		num := AsNumber(n)
+		return fmt.Sprintf("%v", num.Value)
+	case NodeIdentifier:
+		id := AsIdentifier(n)
+		return id.Name
+	case NodeBinOp:
+		bin := AsBinOp(n)
+		return fmt.Sprintf("(%s %v %s)",
+			valueToString(bin.Left),
+			bin.Operator,
+			valueToString(bin.Right))
+	default:
+		return "<?>"
+	}
 }

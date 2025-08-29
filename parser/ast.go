@@ -38,7 +38,7 @@ func AsAssignment(n Node) *AssignmentNode {
 	return n.(*AssignmentNode)
 }
 
-// ----- Cout ----- 
+// ----- Cout -----
 type CoutNode struct {
 	Value Node
 }

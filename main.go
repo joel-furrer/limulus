@@ -9,8 +9,13 @@ import (
 	"limulus/parser"
 )
 
+var (
+	fileName     = flag.String("file", "", "path of the file to compile")
+	dumpAST      = flag.Bool("dump-ast", false, "Dump the abstract syntax tree (AST)")
+	dumpASTTyped = flag.Bool("dump-ast-typed", false, "Dump the typed AST with type information")
+)
+
 func main() {
-	fileName := flag.String("file", "", "path of the file to compile")
 	flag.Parse()
 
 	if *fileName == "" {
@@ -32,7 +37,10 @@ func main() {
 	instructions := lexer.Lex(source)
 
 	// parser
-	_, err = parser.Parse(instructions)
+	_, err = parser.Parse(instructions, parser.Options{
+		DumpAST:      *dumpAST,
+		DumpASTTyped: *dumpASTTyped,
+	})
 	if err != nil {
 		fmt.Println("parse error:", err)
 		os.Exit(1)

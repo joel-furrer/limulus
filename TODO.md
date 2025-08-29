@@ -1,3 +1,3 @@
 # ToDo
-- add ast logic ( negative oder unsigned numbers!! )
+- parse ast, check for variable scopes
 - add package ir ( includes logic for generating intermediate representation from AST )

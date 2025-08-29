@@ -46,7 +46,15 @@ func printAst(n Node, prefix string, isLast bool) {
 	case NodeNumber:
 		num := n.(*NumberNode)
 
-		fmt.Println(prefix + connector + fmt.Sprintf("Num[%v]: %v", num.NumType.ToString(), num.Value))
+		var numStr string
+		if DumpASTTyped {
+			numStr = fmt.Sprintf("Num[%v]: %v", num.NumType.ToString(), num.Value)
+		} else {
+			numStr = fmt.Sprintf("Num: %v",  num.Value)
+		}
+
+		//fmt.Println(prefix + connector + fmt.Sprintf("Num[%v]: %v", num.NumType.ToString(), num.Value))
+		fmt.Println(prefix + connector + numStr)
 
 	case NodeIdentifier:
 		id := n.(*IdentifierNode)

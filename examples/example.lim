@@ -9,8 +9,4 @@ let z = x + 4
 
 let y = ( 2 + 8 ) * 4 - ( 8 / ( 5 + 12 ) - 3 )
 
-let variable = 5 + z
-
 cout variable + 2
-
-cout x + z + variable

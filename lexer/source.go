@@ -6,8 +6,8 @@ import (
 )
 
 type SourceFile struct {
-	Name string
-	Content  string
+	Name    string
+	Content string
 }
 
 func (f *SourceFile) Lines() []Line {

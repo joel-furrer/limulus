@@ -2,8 +2,6 @@ package parser
 
 import (
 	"fmt"
-
-	//"limulus/lexer"
 )
 
 func Parse(instructions Instructions) (Program, error) {
@@ -14,10 +12,9 @@ func Parse(instructions Instructions) (Program, error) {
 	}
 
 	for _, i := range instructions {
-		//node, err := Instruction(i).Ast()
 		node, _ := Instruction(i).Ast()
 
-		fmt.Printf("%#v\n", node)
+		printAst(node)
 	}
 
 	return prog, nil

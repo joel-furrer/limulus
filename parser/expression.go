@@ -1,8 +1,8 @@
 package parser
 
 import (
-	"limulus/tok"
 	"limulus/err"
+	"limulus/tok"
 )
 
 type Expression Instruction
@@ -14,7 +14,7 @@ func validateExpression(i Instruction) err.Err {
 		return err.New(ErrMissingExpression, 0)
 	}
 
-	if pos, ok := e.ValidateTokens(); !ok  {
+	if pos, ok := e.ValidateTokens(); !ok {
 		return err.New(ErrInvalidToken, pos)
 	}
 
@@ -37,7 +37,7 @@ func validateExpression(i Instruction) err.Err {
 }
 
 func (e Expression) ValidateTokens() (int, bool) {
-	
+
 	validTokens := []tok.Type{
 		tok.IDENTIFIER,
 		tok.NUMBER,
@@ -45,7 +45,7 @@ func (e Expression) ValidateTokens() (int, bool) {
 		tok.LPAREN,
 		tok.RPAREN,
 	}
-	
+
 	tokMap := make(map[tok.Type]bool)
 	for _, vt := range validTokens {
 		tokMap[vt] = true
@@ -65,11 +65,11 @@ func (e Expression) ValidateParantheses() err.Err {
 	var lastTok tok.Token
 
 	for i, t := range e {
-		switch t.Type{
+		switch t.Type {
 
 		case tok.LPAREN:
-			if i == len(e) -1 {
-				pos := t.Position + len(t.Text) -1
+			if i == len(e)-1 {
+				pos := t.Position + len(t.Text) - 1
 				return ErrInvalidTokenUsage(t, AtEndOfExpression, pos)
 			}
 
@@ -92,7 +92,7 @@ func (e Expression) ValidateParantheses() err.Err {
 				return err.New(ErrEmptyExpression, lastTok.Position)
 			}
 
-			stack = stack[:len(stack) -1]
+			stack = stack[:len(stack)-1]
 		}
 
 		lastTok = t
@@ -100,7 +100,7 @@ func (e Expression) ValidateParantheses() err.Err {
 	}
 
 	if len(stack) != 0 {
-		last := stack[len(stack) -1]
+		last := stack[len(stack)-1]
 		return ErrMissingToken(tok.RPAREN, last.Position)
 	}
 
@@ -117,11 +117,11 @@ func (e Expression) ValidateOperators() err.Err {
 				return ErrInvalidTokenUsage(t, AtStartOfExpression, pos)
 			}
 
-			if i == len(e) -1 {
+			if i == len(e)-1 {
 				pos := t.Position
 				return ErrInvalidTokenUsage(t, AtEndOfExpression, pos)
 			}
-			
+
 			if lastTok.Type == tok.OP {
 				pos := t.Position
 				return ErrUnexpectedSequence(lastTok, t, pos)
@@ -133,7 +133,7 @@ func (e Expression) ValidateOperators() err.Err {
 			}
 
 		}
-			
+
 		lastTok = t
 	}
 
@@ -173,4 +173,3 @@ func (e Expression) ValidateSequence() err.Err {
 
 	return err.Err{}
 }
-

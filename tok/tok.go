@@ -3,7 +3,7 @@ package tok
 // tokens
 type Type int
 
-func ( t Type ) ToString() string {
+func (t Type) ToString() string {
 	switch t {
 	case IDENTIFIER:
 		return "identifier"
@@ -28,19 +28,19 @@ func ( t Type ) ToString() string {
 
 const (
 	UNKNOWN Type = iota
-	
+
 	IDENTIFIER
 
 	NUMBER
-	
+
 	LET
 	COUT
-	
+
 	ASSIGN
 	DOT
 
 	OP
-	
+
 	LPAREN
 	RPAREN
 )

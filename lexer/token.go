@@ -17,7 +17,7 @@ func classifyToken(text string) tok.Type {
 		return tok.COUT
 	case "=":
 		return tok.ASSIGN
-	
+
 	// operands
 	case "+", "-", "*", "/":
 		return tok.OP
@@ -27,7 +27,7 @@ func classifyToken(text string) tok.Type {
 		return tok.LPAREN
 	case ")":
 		return tok.RPAREN
-	
+
 	default:
 		// check if is a valid identifier
 		if isValidIdentifier(text) {
@@ -78,7 +78,7 @@ func classifyNumber(text string) tok.NumType {
 		return tok.NUM_UNKNOWN
 	}
 
-	// check if is unsigned 
+	// check if is unsigned
 	unsigned := false
 	if strings.HasSuffix(text, "u") {
 		unsigned = true
@@ -95,19 +95,19 @@ func classifyNumber(text string) tok.NumType {
 		}
 		return tok.INT32
 	}
-	
+
 	return tok.NUM_UNKNOWN
 }
 
 func classifyOperator(text string) tok.BinOpType {
 	switch text {
-	case "+": 
+	case "+":
 		return tok.PLUS
-	case "-": 
+	case "-":
 		return tok.MIN
-	case "*": 
+	case "*":
 		return tok.MUL
-	case "/": 
+	case "/":
 		return tok.DIV
 	default:
 		return tok.OP_UNKNOWN

@@ -59,15 +59,15 @@ func (l Line) addToken(tokens *[]tok.Token, text string, start int) {
 
 	var opType tok.BinOpType
 	if tokType == tok.OP {
-		opType = classifyOperator(text)	
+		opType = classifyOperator(text)
 	}
 
 	*tokens = append(*tokens, tok.Token{
-		Text:       text,
-		Position:   start,
-		Line:       l.LineNo,
-		Type:       tokType,
-		NumType:    numType,
-		BinOpType:  opType,
+		Text:      text,
+		Position:  start,
+		Line:      l.LineNo,
+		Type:      tokType,
+		NumType:   numType,
+		BinOpType: opType,
 	})
 }

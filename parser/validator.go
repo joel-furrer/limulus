@@ -3,13 +3,13 @@ package parser
 import (
 	"fmt"
 
-	"limulus/tok"
 	"limulus/err"
+	"limulus/tok"
 )
 
-func ( instr Instructions ) Validate() bool {
-	for _, i := range  instr {
-		
+func (instr Instructions) Validate() bool {
+	for _, i := range instr {
+
 		firstTok := i[0]
 		if v, ok := statementValidators[firstTok.Type]; ok {
 			err := v(i)
@@ -35,7 +35,7 @@ var statementValidators = map[tok.Type]Validator{
 func validateLet(i Instruction) err.Err {
 
 	if len(i) < 4 {
-		lastTok := i[len(i) -1]
+		lastTok := i[len(i)-1]
 		pos := lastTok.Position + len(lastTok.Text) + 1
 		return ErrNotEnoughArgs(tok.LET, pos)
 	}

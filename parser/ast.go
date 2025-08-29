@@ -2,40 +2,64 @@ package parser
 
 import (
 	"fmt"
-	
+
 	"limulus/tok"
 )
 
 // AST
-type Node interface{}
+type NodeKind int
 
-type BinOpNode struct {
-	Left     Node
-	Operator string
-	Right    Node
+const (
+	NodeAssignment NodeKind = iota
+	NodeCout
+	NodeBinOp
+	NodeNumber
+	NodeIdentifier
+)
+
+type Node interface {
+	Kind() NodeKind
 }
 
+// AST Nodes
 type AssignmentNode struct {
 	Name  string
 	Value Node
 }
+
+func (a *AssignmentNode) Kind() NodeKind { return NodeAssignment }
 
 type CoutNode struct {
 	Name  string
 	Value Node
 }
 
-type NumberNode struct {
-	Value int
+func (c *CoutNode) Kind() NodeKind { return NodeCout }
+
+type BinOpNode struct {
+	Left     Node
+	Operator tok.BinOpType
+	Right    Node
 }
+
+func (b *BinOpNode) Kind() NodeKind { return NodeBinOp }
+
+type NumberNode struct {
+	Value   int
+	NumType tok.NumType
+}
+
+func (n *NumberNode) Kind() NodeKind { return NodeNumber }
 
 type IdentifierNode struct {
 	Name string
 }
 
-func ( i Instruction ) Ast() ( Node, error ) {
+func (i *IdentifierNode) Kind() NodeKind { return NodeIdentifier }
 
-	switch i[0].Type{
+func (i Instruction) Ast() (Node, error) {
+
+	switch i[0].Type {
 	case tok.LET:
 		return i.AssignmentAst(), nil
 	case tok.COUT:
@@ -45,16 +69,16 @@ func ( i Instruction ) Ast() ( Node, error ) {
 	return nil, nil
 }
 
-func (i Instruction) AssignmentAst() AssignmentNode {
-    pos := 3
-    expr := parseExpression(i, &pos)
-    return AssignmentNode{Name: i[1].Text, Value: expr}
+func (i Instruction) AssignmentAst() Node {
+	pos := 3
+	expr := parseExpression(i, &pos)
+	return &AssignmentNode{Name: i[1].Text, Value: expr}
 }
 
-func (i Instruction) CoutAst() CoutNode {
-    pos := 3
-    expr := parseExpression(i, &pos)
-    return CoutNode{Name: i[1].Text, Value: expr}
+func (i Instruction) CoutAst() Node {
+	pos := 1
+	expr := parseExpression(i, &pos)
+	return &CoutNode{Name: i[1].Text, Value: expr}
 }
 
 func parseExpression(tokens Instruction, pos *int) Node {
@@ -72,10 +96,10 @@ func parseExpression(tokens Instruction, pos *int) Node {
 		if t.BinOpType != tok.PLUS && t.BinOpType != tok.MIN {
 			break
 		}
-		
+
 		*pos++
 		right := parseTerm(tokens, pos)
-		left = BinOpNode{Left: left, Operator: t.Text, Right: right}
+		left = &BinOpNode{Left: left, Operator: t.BinOpType, Right: right}
 	}
 
 	return left
@@ -83,24 +107,24 @@ func parseExpression(tokens Instruction, pos *int) Node {
 
 func parseTerm(tokens Instruction, pos *int) Node {
 	left := parseFactor(tokens, pos)
-    
+
 	for *pos < len(tokens) {
-        t := tokens[*pos]
+		t := tokens[*pos]
 
 		// only stay if current token is operator
-        if t.Type != tok.OP {
-            break
-        }
+		if t.Type != tok.OP {
+			break
+		}
 
 		// only stay if current token is * or /
-        if t.BinOpType != tok.MUL && t.BinOpType != tok.DIV {
-            break
-        }
+		if t.BinOpType != tok.MUL && t.BinOpType != tok.DIV {
+			break
+		}
 
-        *pos++
-        right := parseFactor(tokens, pos)
-        left = BinOpNode{Left: left, Operator: t.Text, Right: right}
-    }
+		*pos++
+		right := parseFactor(tokens, pos)
+		left = &BinOpNode{Left: left, Operator: t.BinOpType, Right: right}
+	}
 
 	return left
 }
@@ -110,16 +134,16 @@ func parseFactor(tokens Instruction, pos *int) Node {
 	*pos++
 
 	switch t.Type {
-    case tok.NUMBER:
-        var val int
-        fmt.Sscanf(t.Text, "%d", &val)
-        return NumberNode{Value: val}
+	case tok.NUMBER:
+		var val int
+		fmt.Sscanf(t.Text, "%d", &val)
+		return &NumberNode{Value: val, NumType: t.NumType}
 
-    case tok.IDENTIFIER:
-        return IdentifierNode{Name: t.Text}
+	case tok.IDENTIFIER:
+		return &IdentifierNode{Name: t.Text}
 	case tok.LPAREN:
 		node := parseExpression(tokens, pos)
-		
+
 		// this *pos++ skips the ')', where pos is still pointing to from parseExpression
 		*pos++
 		return node

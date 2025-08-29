@@ -15,7 +15,9 @@ func Parse(instructions Instructions) (Program, error) {
 
 	for _, i := range instructions {
 		//node, err := Instruction(i).Ast()
-		_, _ = Instruction(i).Ast()
+		node, _ := Instruction(i).Ast()
+
+		fmt.Printf("%#v\n", node)
 	}
 
 	return prog, nil

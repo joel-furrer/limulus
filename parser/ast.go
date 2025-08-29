@@ -30,7 +30,7 @@ type AssignmentNode struct {
 func (a *AssignmentNode) Kind() NodeKind { return NodeAssignment }
 
 type CoutNode struct {
-	Name  string
+	//Name  string
 	Value Node
 }
 
@@ -78,7 +78,8 @@ func (i Instruction) AssignmentAst() Node {
 func (i Instruction) CoutAst() Node {
 	pos := 1
 	expr := parseExpression(i, &pos)
-	return &CoutNode{Name: i[1].Text, Value: expr}
+	//return &CoutNode{Name: i[1].Text, Value: expr}
+	return &CoutNode{Value: expr}
 }
 
 func parseExpression(tokens Instruction, pos *int) Node {

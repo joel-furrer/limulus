@@ -48,6 +48,25 @@ const (
 // numbers
 type NumType int
 
+func (n NumType) ToString() string {
+	switch n {
+	case INT32:
+		return "int32"
+	case INT64:
+		return "int64"
+	case UINT32:
+		return "uint32"
+	case UINT64:
+		return "uint64"
+	case FLOAT32:
+		return "float32"
+	case FLOAT64:
+		return "float64"
+	default:
+		return "unknown"
+	}
+}
+
 const (
 	NUM_UNKNOWN NumType = iota
 	INT32
@@ -61,8 +80,7 @@ const (
 // binary operators
 type BinOpType int
 
-/*
-func ( b BinOpType ) ToString() string {
+func (b BinOpType) ToString() string {
 	switch b {
 	case PLUS:
 		return "+"
@@ -72,9 +90,10 @@ func ( b BinOpType ) ToString() string {
 		return "*"
 	case DIV:
 		return "/"
+	default:
+		return "unknown token"
 	}
 }
-*/
 
 const (
 	OP_UNKNOWN BinOpType = iota

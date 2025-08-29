@@ -72,7 +72,7 @@ func classifyNumber(text string) tok.NumType {
 			return tok.NUM_UNKNOWN
 		}
 
-		if _, err := strconv.ParseFloat(text, 64); err != nil {
+		if _, err := strconv.ParseFloat(text, 64); err == nil {
 			return tok.FLOAT64
 		}
 		return tok.NUM_UNKNOWN

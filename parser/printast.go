@@ -30,7 +30,7 @@ func printAst(n Node, prefix string, isLast bool) {
 	case NodeAssignment:
 		fmt.Println("Assign")
 		assign := n.(*AssignmentNode)
-		
+
 		fmt.Println(prefix + Tee + "Name: " + assign.Name)
 
 		// recursion
@@ -45,23 +45,23 @@ func printAst(n Node, prefix string, isLast bool) {
 
 	case NodeNumber:
 		num := n.(*NumberNode)
-		
+
 		fmt.Println(prefix + connector + fmt.Sprintf("Num[%v]: %v", num.NumType.ToString(), num.Value))
 
 	case NodeIdentifier:
 		id := n.(*IdentifierNode)
-		
+
 		fmt.Println(prefix + connector + "Id: " + id.Name)
 
 	case NodeBinOp:
 		op := n.(*BinOpNode)
-		
+
 		fmt.Println(prefix + connector + fmt.Sprintf("BinOp (%s)", op.Operator.ToString()))
-		
+
 		// recursion
-		printAst(op.Left, prefix + getPrefix(isLast), false)
+		printAst(op.Left, prefix+getPrefix(isLast), false)
 		// recursion
-		printAst(op.Right, prefix + getPrefix(isLast), true)
+		printAst(op.Right, prefix+getPrefix(isLast), true)
 
 	}
 }

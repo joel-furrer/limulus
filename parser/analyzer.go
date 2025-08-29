@@ -59,6 +59,8 @@ func analyzeNode(n Node, table *SymbolTable) (tok.NumType, error) {
 
 		if lType == rType {
 			fmt.Printf("[TYPE CHECKER]: success: %s[%s] == %s[%s]\n", lVal, lStr, rVal, rStr)
+			// implement type checker that promotes type if needed or returns error ( consider uint, int, float, negative nums )
+			// important: uints are always set explict, therefore should not be promoted to a int
 			return lType, nil
 		} else {
 			return tok.NUM_UNKNOWN, fmt.Errorf("type conflict: %s[%s] != %s[%s]\n", lVal, lStr, rVal, rStr)
@@ -89,7 +91,7 @@ func valueToString(n Node) string {
 		bin := AsBinOp(n)
 		return fmt.Sprintf("(%s %v %s)",
 			valueToString(bin.Left),
-			bin.Operator,
+			bin.Operator.ToString(),
 			valueToString(bin.Right))
 	default:
 		return "<?>"

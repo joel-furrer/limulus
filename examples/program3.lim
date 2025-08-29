@@ -1,3 +1,5 @@
 let x = 5
 
-let y = x + 1 * 4u + x
+let y = x + 1 * 4 + x
+
+let var = 5 + 5 * -4
